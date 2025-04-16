@@ -1,0 +1,130 @@
+cal  //get the calendar
+
+date +%d  //get only the date from current date
+
+date +%y //get only the current year in 2 digits from current date
+
+date +%Y  //get only the current year from current date 
+
+date +%a //get the dayname in 3 letters from current date
+
+date +%A //get the full day name from current date
+
+date +%D //get the current date(mm/dd/yy)
+
+date +%m //get only the month of current date
+
+date +%M //get the minutes of the current time
+
+date +%t
+
+date +%T //get the current time
+
+date +%H //get the hour of current time
+
+date +%h //get the current date month in name.
+
+
+touch prgrm1.sh  //create prgrm1.sh file
+
+vi prgrm1.sh //edit the prgrm1.sh file
+
+//press 'i' key
+//insert these in prgrm1.sh
+echo "Nishagee"
+read name
+echo "Hi "$name
+echo "Number 1"
+read x
+echo "Number 2"
+read y
+sum=$(($x+$y))
+sub=$(($x-$y))
+mul=$(($x*$y))
+div=$(($x/$y))
+echo "Summation "$sum
+echo "Subtraction "$sub
+echo "Multiplication "$mul
+echo "Division "$div
+
+//ctrl+c
+//wq!
+
+chmod 777 prgrm1.sh //set the permission
+
+./prgrm1.sh //Read the prgrm1.sh file
+
+
+Output code:
+
+datlogin as: 2021ict09
+2021ict09@172.16.140.150's password:
+Last login: Mon Mar 24 11:38:15 2025 from 172.16.140.71
+[2021ict09@fedora ~]$ cal
+     March 2025
+Su Mo Tu We Th Fr Sa
+                   1
+ 2  3  4  5  6  7  8
+ 9 10 11 12 13 14 15
+16 17 18 19 20 21 22
+23 24 25 26 27 28 29
+30 31
+[2021ict09@fedora ~]$ date +%d
+24
+[2021ict09@fedora ~]$ date +%y
+25
+[2021ict09@fedora ~]$ date +%Y
+2025
+[2021ict09@fedora ~]$ date +%a
+Mon
+[2021ict09@fedora ~]$ date +%A
+Monday
+[2021ict09@fedora ~]$ date +%D
+03/24/25
+[2021ict09@fedora ~]$ date +%m
+03
+[2021ict09@fedora ~]$ date +%M
+49
+[2021ict09@fedora ~]$ date +%t
+
+[2021ict09@fedora ~]$ date +%T
+11:49:44
+[2021ict09@fedora ~]$ date +%H
+11
+[2021ict09@fedora ~]$ date +%h
+Mar
+
+[2021ict09@fedora ~]$ vi prgrm1.sh
+
+echo "Nishagee"
+read name
+echo "Hi" $name
+echo "Number 1"
+read x
+echo "Number 2"
+read y
+sum=$(($x+$y))
+sub=$(($x-$y))
+mul=$(($x*$y))
+div=$(($x/$y))
+echo "Summation "$sum
+echo "Subtraction "$sub
+echo "Multiplication "$mul
+echo "Division "$div
+
+[2021ict09@fedora ~]$ chmod 777 prgrm1.sh
+
+[2021ict09@fedora ~]$ ./prgrm1.sh
+Nishagee
+
+Hi
+Number 1
+20
+Number 2
+10
+Summation 30
+Subtraction 10
+Multiplication 200
+Division 2
+
+
