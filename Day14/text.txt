@@ -1,0 +1,108 @@
+fork()-->copy a process
+pid of child process -->0
+
+//01
+#include<stdio.h>
+#include<unistd.h>
+int main(){
+	printf("\nHello World");
+	int f=fork();
+	int p=getpid();
+
+	printf("\n The pid is %d",p);
+	printf("\n The pid is %d",f);
+	return 0;
+}
+
+[2021ict09@fedora ~]$ vi pro1.c
+[2021ict09@fedora ~]$ gcc pro1.c -o pro1
+[2021ict09@fedora ~]$ ./pro1
+
+Hello World
+ The pid is 11384
+ The pid is 11385Hello World
+ The pid is 11385
+ The pid is 0
+ 
+
+//02
+#include<stdio.h>
+#include<unistd.h>
+int main(){
+	
+	fork();
+	fork();
+	printf("\nHello World\n");
+	return 0;
+}
+
+//03
+#include<stdio.h>
+#include<unistd.h>
+int main(){
+	
+	printf("\nHello!");
+	int f=fork();
+	if(f==0)
+	{
+		printf(" I am child.\n");
+	}
+	else
+	{
+		printf(" I am parent.\n");
+	}
+	return 0;
+}
+
+[2021ict09@fedora ~]$ vi pro3.c
+[2021ict09@fedora ~]$ gcc pro3.c -o pro3
+[2021ict09@fedora ~]$ ./pro3
+
+Hello! I am parent.
+Hello! I am child.
+
+//04
+
+
+#include<stdio.h>
+#include<unistd.h>
+int main()
+{
+	int p=getpid();
+	int f=fork();
+	if(f==0)
+	{
+		printf("I'm child ");
+		printf("My parent id: %d\n",getppid());
+	}
+	
+	else
+	{
+		int f1=fork();
+		if(f1==0)
+		{
+			printf("I'm sibiling ");
+			printf("My parent id: %d\n",getppid());
+		}
+		
+		else
+		{
+			printf("I am parent ");
+			printf("Parent id:%d , ",getpid());
+			printf("My parent id: %d\n",getppid());
+		}
+	}
+	return 0;
+	
+}
+
+[2021ict09@fedora ~]$ vi pro4.c
+[2021ict09@fedora ~]$ gcc pro4.c -o pro4
+[2021ict09@fedora ~]$ ./pro4
+I am parent Parent id:24004 , My parent id: 2359
+I'm child My parent id: 24004
+I'm sibiling My parent id: 24004
+
+
+
+
