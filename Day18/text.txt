@@ -1,0 +1,112 @@
+//Inter Process Communication(IPC) - communications between two or more processes
+
+//message passing
+//send
+
+#include<stdio.h>        // Include standard input-output header
+#include<sys/ipc.h>      // Include headers for IPC (Inter-Process Communication)
+#include<sys/msg.h>
+#define MAX 10           // Define the maximum size for the message text
+
+//structure for message queue
+
+struct msg_buffer {
+	long msg_type;       // Message type (must be > 0)
+	char msg_text[100];  // Message text
+}
+message;                 // Create a variable 'message' of type struct msg_buffer
+
+int main()
+{
+	key_t key;          // Variable to store the key for the message queue
+	int msgid;          // Variable to store the message queue identifier
+	
+	// Generate a unique key using ftok
+    // "progfile" is a file that should exist in the directory
+    // 65 is a project identifier (can be any number)
+	key=ftok("progfile",65);
+	// Create a message queue (or get it if it already exists)
+    // 0666: Read and write permission for everyone
+    // IPC_CREAT: Create the queue if it doesn't exist
+	msgid=msgget(key,0666 | IPC_CREAT);
+	
+	// Set the message type (must be a positive number)
+	message.msg_type=1;
+	
+	// Ask the user to enter some text
+	printf("Write Data: ");
+	
+	// Read a line of input from the user and store it in message.msg_text
+	fgets(message.msg_text,MAX,stdin);
+	// Send the message to the message queue
+    // msgid: ID of the queue
+    // &message: Pointer to the message structure
+    // sizeof(message.msg_text): Size of the message text
+    // 0: No special flags
+	msgsnd(msgid,&message, sizeof(message), 0);
+	//display the message
+	printf("Data send is : %s \n", message.msg_text);
+	return 0;
+}
+
+//receive
+
+#include<stdio.h>       // Standard I/O library for printing output
+#include<sys/ipc.h>     // Contains definitions for interprocess communication (IPC)
+#include <sys/msg.h>    // Defines message queue functions and structures
+
+//structure for message queue
+struct msg_buffer{
+	long msg_type;         // Message type, must be positive
+	char msg_text[100];    // Message data
+}
+message;
+
+int main()
+{
+	key_t key;         // Variable to store unique key for message queue
+	int msgid;         // Variable to store message queue ID
+	
+	// ftok() generates a unique key based on the given filename and ID
+	key=ftok("progfile",65);
+	//msgget creates a message queue
+	//and returns identifier
+	msgid=msgget(key,0666 | IPC_CREAT);
+	// msgrcv() receives a message from the message queue
+    // Parameters:
+    // - msgid: Message queue identifier
+    // - &message: Pointer to message buffer
+    // - sizeof(message): Size of the message structure
+    // - 1: Message type (should match sender)
+    // - 0: Flags (0 means blocking operation)
+	msgrcv(msgid,&message, sizeof(message),1, 0);
+	//display the message
+	printf("Data received is : %s \n", message.msg_text);
+	// msgctl() removes the message queue after usage
+	msgctl(msgid,IPC_RMID,NULL);
+	return 0;
+}
+
+
+output:
+
+[2021ict09@fedora ~]$ vi semd.c
+[2021ict09@fedora ~]$ vi send.c
+[2021ict09@fedora ~]$ gcc send.c -o send
+[2021ict09@fedora ~]$ vi receive.c
+[2021ict09@fedora ~]$ gcc receive.c -o receive
+[2021ict09@fedora ~]$ ./send
+Write Data: 10
+Data send is : 10
+
+[2021ict09@fedora ~]$ ./receive
+Data received is : I'm Salma
+[2021ict09@fedora ~]$ ./send
+Write Data: hello
+Data send is : hello
+
+[2021ict09@fedora ~]$ ./receive
+Data received is :
+
+
+//get another message because all computers connect to one server in lab.
