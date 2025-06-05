@@ -5,5 +5,9 @@ outputs-->
 
 ![1](https://github.com/user-attachments/assets/c100a658-409d-4be3-9a77-820fb16f6a28)
 
+child --> write hello
+
+parent --> read the message from child
+
 ![2](https://github.com/user-attachments/assets/7438ecf8-a078-4977-8496-032195b5b35d)
 
