@@ -1,0 +1,210 @@
+//single threaded process
+
+#include<stdio.h>    // Standard input-output library for printing and scanning.
+#include<unistd.h>   // Provides access to the `sleep` function.
+#include<stdlib.h>   // Standard library for memory allocation, process control, etc.
+#include<pthread.h>  // POSIX thread library to create and manage threads.
+
+// A function that will be executed as a thread.
+// This function prints "Hello World" after a short delay.
+void *helloworld(void *vargp)
+{
+    sleep(1);  // Makes the thread sleep for 1 second before printing.
+    printf("Hello World \n");  // Prints "Hello World" to the console.
+    return NULL;  // Thread execution ends.
+}
+
+int main()
+{
+    pthread_t thread_id;  // Declares a thread variable to store the thread ID.
+    
+    printf("Before Thread\n");  // Prints a message before creating the thread.
+
+    // Creates a new thread that runs the `helloworld` function.
+    pthread_create(&thread_id, NULL, helloworld, NULL);  
+    
+    // Waits for the thread to finish execution before proceeding.
+    pthread_join(thread_id, NULL);
+
+    printf("After Thread\n");  // Prints a message after the thread has finished execution.
+
+    exit(0);  // Exits the program successfully.
+}
+
+output:
+
+[2021ict09@fedora ~]$ vi thread1.c
+[2021ict09@fedora ~]$ gcc thread1.c -o thread1
+[2021ict09@fedora ~]$ ./thread1
+Before Thread
+Hello World
+After Thread
+
+====================================================================================================
+
+//multi threaded process
+
+#include<stdio.h>    // Standard input-output library for printing messages.
+#include<pthread.h>  // POSIX thread library for creating and managing threads.
+
+// Function to be executed by the thread
+void* print_message(void* arg)
+{
+    char* message = (char*)arg;  // Casts the argument to a character pointer.
+    printf("%s\n", message);     // Prints the message passed to the thread.
+    return NULL;                 // Thread execution ends.
+}
+
+int main()
+{
+    pthread_t thread1, thread2;  // Declare two thread variables to store thread IDs.
+
+    // Create the first thread, passing the message "hello from thread1" as an argument.
+    pthread_create(&thread1, NULL, print_message, "hello from thread1");
+
+    // Create the second thread, passing the message "hello from thread2" as an argument.
+    pthread_create(&thread2, NULL, print_message, "hello from thread2");
+
+    // Wait for the first thread to complete execution before proceeding.
+    pthread_join(thread1, NULL);
+
+    // Wait for the second thread to complete execution before proceeding.
+    pthread_join(thread2, NULL);
+
+    // Print a message indicating that both threads have completed execution.
+    printf("Both threads completed.\n");
+
+    return 0;  // Return 0 to indicate successful program termination.
+}
+output:
+
+[2021ict09@fedora ~]$ vi multithread.c
+[2021ict09@fedora ~]$ gcc multithread.c -o multithread
+[2021ict09@fedora ~]$ ./multithread
+hello from thread1
+hello from thread2
+Both threads completed.
+
+=================================================================================================
+
+//thread1 --> "say hi!"
+//thread2 --> "say hello!"
+//thread3 --> "say hey!"
+
+#include<stdio.h>    // Standard input-output library for printing output.
+#include<pthread.h>  // POSIX thread library for creating and managing threads.
+
+// Function to be executed by each thread
+void* print_message(void* arg)
+{
+    char* message = (char*)arg;  // Casts the void pointer argument to a character pointer.
+    printf("%s\n", message);     // Prints the message passed to the thread.
+    return NULL;                 // Returns NULL, indicating the thread has completed execution.
+}
+
+int main()
+{
+    pthread_t threads[3];  // Declares an array to store three thread IDs.
+
+    // Array of messages that will be passed to each thread
+    char* messages[] = {
+        "thread1 says hi!",   // Message for thread 1
+        "thread2 says hello!",// Message for thread 2
+        "thread3 says hey!"   // Message for thread 3
+    };
+
+    // Loop to create three threads, each executing print_message function
+    for(int i = 0; i < 3; i++)
+    {
+        pthread_create(&threads[i], NULL, print_message, messages[i]);  
+        // Creates a new thread, assigns an ID to threads[i]
+        // Runs the print_message function with messages[i] as an argument
+    }
+
+    // Loop to wait for all threads to complete execution
+    for(int i = 0; i < 3; i++)
+    {
+        pthread_join(threads[i], NULL);
+        // Ensures that the main thread waits for threads[i] to finish before proceeding.
+    }
+
+    printf("All threads completed.\n");  // Prints a confirmation message after all threads finish execution.
+
+    return 0;  // Returns 0, indicating successful program execution.
+}
+output:
+
+[2021ict09@fedora ~]$ vi multithread2.c
+[2021ict09@fedora ~]$ gcc multithread2.c -o multithread2
+[2021ict09@fedora ~]$ ./multithread2
+thread1 says hi!
+thread3 says hey!
+thread2 says hello!
+All threads completed.
+
+
+=====================================================================================
+
+
+//using threads to compute parts of a sum(parrallel sum)
+
+#include<stdio.h>        // Standard I/O library for printf
+#include<pthread.h>      // POSIX threads library for threading
+
+#define SIZE 6          // Define array size
+
+int arr[SIZE] = {1, 2, 3, 4, 5, 6}; // Array to be summed
+int sum1 = 0, sum2 = 0; // Global variables to store partial sums
+pthread_mutex_t lock;   // Mutex to ensure thread safety
+
+// Function to sum the first half of the array
+void* sum_part1(void* arg) {
+    pthread_mutex_lock(&lock);  // Lock mutex before modifying shared data
+    for(int i = 0; i < SIZE / 2; i++) {  
+        sum1 += arr[i];  // Sum first half elements
+    }
+    pthread_mutex_unlock(&lock); // Unlock mutex after modification
+    return NULL;
+}
+
+// Function to sum the second half of the array
+void* sum_part2(void* arg) {
+    pthread_mutex_lock(&lock);  // Lock mutex before modifying shared data
+    for(int i = SIZE / 2; i < SIZE; i++) {
+        sum2 += arr[i];  // Sum second half elements
+    }
+    pthread_mutex_unlock(&lock); // Unlock mutex after modification
+    return NULL;
+}
+
+int main() {
+    pthread_t t1, t2; // Declare two thread variables
+    pthread_mutex_init(&lock, NULL); // Initialize mutex before use
+    
+    // Create two threads to compute partial sums
+    pthread_create(&t1, NULL, sum_part1, NULL);
+    pthread_create(&t2, NULL, sum_part2, NULL);
+    
+    // Wait for both threads to finish execution
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    
+    pthread_mutex_destroy(&lock); // Destroy mutex after use
+    
+    // Print the total sum after threads complete execution
+    printf("Total Sum: %d\n", sum1 + sum2);
+    return 0; // Exit program successfully
+}
+
+
+output:
+
+[2021ict09@fedora ~]$ vi sum.c
+[2021ict09@fedora ~]$ gcc sum.c -o sum
+[2021ict09@fedora ~]$ ./sum
+Total Sum:21
+
+
+
+
+
