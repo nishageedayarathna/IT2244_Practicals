@@ -1,0 +1,134 @@
+#include <stdio.h>        // For standard input/output functions
+#include<stdlib.h>        // For exit() function
+#include<unistd.h>        // For fork(), pipe(), read(), write()
+#define MSGSIZE 16        // Define the size of each message (string buffer)
+
+// Declare three constant message strings
+char* msg1="hello , world #1";
+char* msg2="hello , world #2";
+char* msg3="hello , world #3";
+
+int main()
+{
+	char inbuf[MSGSIZE];       // Buffer to store incoming messages from the pipe
+	int p[2],i;                // p[2] is the file descriptor array for the pipe
+	                           // p[0] is the read end, p[1] is the write end
+	
+	if(pipe(p)<0)             // Create a pipe; if it fails, exit
+		exit(1);
+	
+	/* continued */
+	/* write pipe */
+	// Write data to the write end of the pipe
+	
+	write(p[1],msg1,MSGSIZE);   // write(fileds,message,messageSize);
+	write(p[1],msg2,MSGSIZE);
+	write(p[1],msg3,MSGSIZE);
+	
+	// Read and print the three messages from the pipe
+	for(i=0;i<3;i++)
+	{
+		/*read pipe*/
+		read (p[0],inbuf,MSGSIZE);   // read(filedes,message,messageSize) -->Read one message from the read end
+		printf("%s\n",inbuf);        // Print the received message
+	}
+	
+	return 0;   //end of the program
+}
+
+
+//Exercise
+//1.read two input from user(//parent process)
+//name:
+//regno:
+//age:
+
+//2.print the output from the child process(//child process)
+
+//name:abc
+//regno:2021/ict/01
+//age:25
+
+//define libraries
+//declare variables
+//creating fork
+//get input from user
+//stack using write()
+//execute using read()->child
+
+#include<stdio.h>      // For input/output functions
+#include<stdlib.h>     // For exit()
+#include<unistd.h>     // For fork(), pipe(), read(), write()
+#include<string.h>     // For string handling like fgets(), strcspn()
+
+#define MSGSIZE 64     // Define a reasonable message size
+
+int main()
+{
+	char name[MSGSIZE] , regno[MSGSIZE] , age[MSGSIZE];   // Buffers for input
+	char inbuf[MSGSIZE];       // Buffer for reading from pipe
+	int p[2];                  // Pipe file descriptors
+	
+	// Step 1: Create a pipe
+	if(pipe(p)<0)
+	{
+		perror("pipe failed");
+		exit(1);
+	}
+	
+	// Step 2: Fork a new process
+	pid_t pid=fork();
+	
+	
+	if(pid<0)
+	{
+		perror("Fork failed");
+		exit(1);
+	}
+	
+	// Step 3: Parent process - collect input and write to pipe
+	else if(pid>0)
+	{
+		close p[0];    // Close unused read end
+		
+		printf("Enter your name: ");
+        fgets(name, sizeof(name), stdin);
+        name[strcspn(name, "\n")] = 0; // Remove newline
+
+        printf("Enter your regno: ");
+        fgets(regno, sizeof(regno), stdin);
+        regno[strcspn(regno, "\n")] = 0;
+
+        printf("Enter your age: ");
+        fgets(age, sizeof(age), stdin);
+        age[strcspn(age, "\n")] = 0;
+
+        // Write input to pipe
+        write(p[1], name, MSGSIZE);
+        write(p[1], regno, MSGSIZE);
+        write(p[1], age, MSGSIZE);
+
+        close(p[1]);  // Close write end
+    }
+	
+	// Step 4: Child process - read from pipe and print output 
+	else
+    {
+        close(p[1]);  // Close unused write end
+
+        read(p[0], inbuf, MSGSIZE);
+        printf("\n--- Child Process Output ---\n");
+        printf("Name: %s\n", inbuf);
+
+        read(p[0], inbuf, MSGSIZE);
+        printf("RegNo: %s\n", inbuf);
+
+        read(p[0], inbuf, MSGSIZE);
+        printf("Age: %s\n", inbuf);
+
+        close(p[0]);  // Close read end
+    }
+	
+	return 0;
+
+}
